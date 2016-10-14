@@ -1,9 +1,20 @@
-type Particle(m, v, x, y, z, q) =
-    member this.mass = m
-    member this.velocity = v
-    member this.x_coord = x
-    member this.y_coord = y
-    member this.z_coord = z
-    member this.charge = q
+namespace PIVSim
 
+open Units
+open Vectors
+
+module Particles = 
+
+    type Particle(mass: float<amu>, velocity: Velocity, position: Position, charge: float<C>) = 
     
+        member this.mass with get() = mass
+        member this.velocity with get() = velocity
+        member this.position with get() = position
+        member this.charge with get() = charge
+
+    (*
+     * type Photon(wavelength: double<nm>, velocity: Velocity<nm/nanosecond>, position: Vector3D<nm>) =
+     * member this.wavelength with get() = wavelength
+     *  member this.velocity with get() = velocity
+     *  member this.position with get() = position
+*)
