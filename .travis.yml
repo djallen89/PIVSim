@@ -5,4 +5,4 @@ install:
     - sudo apt-get install mono-devel 
 
 script:
-    - xbuild /p:Configuration=Release solution-name.sln
+    - xbuild /p:Configuration=Release PIVSim.sln
