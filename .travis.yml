@@ -1,4 +1,8 @@
 language: fsharp
 solution: PIVSim.sln
+
+install:
+    - sudo apt-get install mono-devel 
+
 script:
     - xbuild /p:Configuration=Release solution-name.sln
