@@ -1,2 +1,4 @@
 language: fsharp
 solution: PIVSim.sln
+script:
+    - xbuild /p:Configuration=Release solution-name.sln
