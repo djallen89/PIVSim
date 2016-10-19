@@ -2,7 +2,8 @@ language: fsharp
 solution: PIVSim.sln
 
 install:
-    - sudo apt-get install mono-complete fsharp
+    - sudo apt-get install mono-complete fsharp nuget
 
 script:
+    - nuget restore PIVSim_travis.sln
     - xbuild /p:Configuration=Release PIVSim_travis.sln
