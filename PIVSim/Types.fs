@@ -1,5 +1,7 @@
 namespace PIVSim
 
+open MathNet.Numerics.LinearAlgebra.Double
+
 module Units =
     [<Measure>] type amu
     [<Measure>] type nm
@@ -12,21 +14,21 @@ module Math =
 module Vectors =
     open Units
 
-    let vertice_order(ax: float, ay, az, bx, by, bz) : int = 
+    let vertice_order(ax, ay, az, bx, by, bz) : int = 
         let factor a b : int =
             if a < b then -1
             elif a = b then 0
-            else 0
+            else 1
         match (ax, ay, az, bx, by, bz) with
             | (x1, y1, z1, x2, y2, z2) when x1 = x2 && y1 = y2 && z1 = z2 -> 0
             | (x1, y1, z1, x2, y2, z2) -> 4 * factor x1 x2 + 2 * factor y1 y2 + factor z1 z2
 
-    type ComponentVec(x: float, y: float, z: float) =
-        member this.norm with get() = sqrt (this.x + this.y + this.z)
+    type ComponentVec(coords: float[]) = 
+        member this.vec = DenseVector.OfArray coords
 
-        member this.x with get() = x
-        member this.y with get() = y
-        member this.z with get() = z
+        member this.x = coords.[0]
+        member this.y = coords.[1]
+        member this.z = coords.[2]
 
         override lhs.Equals(rhs) =
             match rhs with
@@ -41,19 +43,11 @@ module Vectors =
                     | :? ComponentVec as rhs -> vertice_order(lhs.x, lhs.y, lhs.z, rhs.x, rhs.y, rhs.z) 
                     | _ -> invalidArg "rhs" "cannot compare values of different types"
 
-    let sub_determinant axis (vec_a: ComponentVec) (vec_b: ComponentVec) =
+    let sub_determinant axis (vec_a: ComponentVec) (vec_b: ComponentVec): float =
         match axis with
             | Math.Axis.X -> vec_a.y * vec_b.z - vec_b.y * vec_a.z
             | Math.Axis.Y -> vec_a.z * vec_b.x - vec_b.z * vec_a.x
             | Math.Axis.Z -> vec_a.x * vec_b.y - vec_b.x * vec_a.y
-
-    let dot_prod (vec_a: ComponentVec) (vec_b: ComponentVec) =
-        vec_a.x * vec_b.x + vec_a.y * vec_b.y + vec_a.z * vec_b.z
-
-    let cross_prod (vec_a: ComponentVec) (vec_b: ComponentVec) =
-        ComponentVec(sub_determinant Math.Axis.X vec_a vec_b,
-                     sub_determinant Math.Axis.Y vec_a vec_b,
-                     sub_determinant Math.Axis.Z vec_a vec_b)
 
     type Vector3D(scalar: float, components: ComponentVec) =
         member this.scalar with get() = scalar
