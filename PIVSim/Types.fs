@@ -43,6 +43,13 @@ module Vectors =
                     | :? ComponentVec as rhs -> vertice_order(lhs.x, lhs.y, lhs.z, rhs.x, rhs.y, rhs.z) 
                     | _ -> invalidArg "rhs" "cannot compare values of different types"
 
+    let particle_dist_sq (lhs: ComponentVec) (rhs: ComponentVec) =
+        let diff_sq a b = (a - b) * (a - b)
+        diff_sq lhs.x rhs.x + diff_sq lhs.y rhs.y + diff_sq lhs.z rhs.z
+
+    let particle_dist (lhs: ComponentVec) (rhs: ComponentVec) =
+        sqrt(particle_dist_sq lhs rhs)
+        
     let sub_determinant axis (vec_a: ComponentVec) (vec_b: ComponentVec): float =
         match axis with
             | Math.Axis.X -> vec_a.y * vec_b.z - vec_b.y * vec_a.z

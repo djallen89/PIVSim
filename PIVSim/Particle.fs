@@ -54,6 +54,10 @@ module Particles =
             | Molecule.MONATOMIC m -> m.mass
             | Molecule.DIATOMIC d -> 2.0 * d.mass
 
+    let molecular_radius p =
+        match p with 
+            | Molecule.MONATOMIC a | Molecule.DIATOMIC a -> a.radius
+
     type ParticleKind =
         | BETA
         | S of SubAtomic 
@@ -72,14 +76,16 @@ module Particles =
             | ParticleKind.BETA -> None
             | ParticleKind.S _ -> None
             | ParticleKind.NU n -> Some(radius_baryon)
-            | ParticleKind.M m ->
-                match m with 
-                    | Molecule.MONATOMIC a | Molecule.DIATOMIC a -> a.radius
+            | ParticleKind.M m -> molecular_radius m
         
-    type Particle(particle_kind: ParticleKind, velocity: Vector3D, position: ComponentVec) =
+    type Particle(particle_kind: ParticleKind,
+                  velocity: Vector3D,
+                  position: ComponentVec,
+                  charge: float) =
         member this.particle_kind with get() = particle_kind
         member this.velocity with get() = velocity
         member this.position with get() = position
+        member this.charge with get() = charge
 
         member this.component_displacement axis =
             this.velocity.scalar
@@ -107,6 +113,10 @@ module Particles =
         ComponentVec [|ith_particle.component_displacement(Math.Axis.X);
                       ith_particle.component_displacement(Math.Axis.Y);
                       ith_particle.component_displacement(Math.Axis.Z)|]
+
+    let elec_force_pair (p1: Particle) (p2: Particle) =
+        GIGA_COULOMB_CNST * p1.charge * p2.charge /
+                          particle_dist_sq p1.position p2.position
 
     let intersection (particle_a: Particle) (particle_b: Particle) =
         if particle_a.velocity = particle_b.velocity then
