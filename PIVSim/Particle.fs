@@ -87,13 +87,6 @@ module Particles =
         member this.position with get() = position
         member this.charge with get() = charge
 
-        member this.component_displacement axis =
-            this.velocity.scalar
-            * match axis with
-                | Math.Axis.X -> this.velocity.components.x
-                | Math.Axis.Y -> this.velocity.components.y
-                | Math.Axis.Z -> this.velocity.components.z                
-
         override lhs.Equals(rhs) =
             match rhs with
                 | :? Particle as rhs -> lhs.particle_kind = rhs.particle_kind
@@ -109,22 +102,22 @@ module Particles =
                     | :? Particle as rhs -> compare lhs.position rhs.position
                     | _ -> invalidArg "rhs" "cannot compare values of different types"
 
-    let displacement (ith_particle: Particle) =
-        ComponentVec [|ith_particle.component_displacement(Math.Axis.X);
-                      ith_particle.component_displacement(Math.Axis.Y);
-                      ith_particle.component_displacement(Math.Axis.Z)|]
-
     let elec_force_pair (p1: Particle) (p2: Particle) =
-        GIGA_COULOMB_CNST * p1.charge * p2.charge /
-                          particle_dist_sq p1.position p2.position
+        if p1 = p2 then
+            failwith "Cannot calculate electric force of a particle on itself"
+        let numerator = GIGA_COULOMB_CNST * p1.charge * p2.charge //nano e 
+        let r_sq =  particle_dist_mag_sq p1.position p2.position
+        let magnitude = numerator / r_sq
+        //head precedes tail, a ---> b 
+        let components = distance_unit_vector p2.position p1.position
+        Vector3D(magnitude, components)
+
+    let component_displacement = 0
 
     let intersection (particle_a: Particle) (particle_b: Particle) =
         if particle_a.velocity = particle_b.velocity then
             None
         else
-            let displacement_a = displacement particle_a
-            let displacement_b = displacement particle_b
-            //solve particle_a.components displacement_a particle_b.components displacement_b
             let t = 0 //time at which collision occurs
             Some(t)
 
